@@ -1,13 +1,22 @@
 local __util = require 'larian.util'
 
+function TargetRadiusSmallerThan(threshold)
+	local result = context.SpellModificationDescription.TargetRadius < threshold
+	return ConditionResult(result)
+end
+
+function UnlimitedMetamagicExclusionSpells()
+    return SpellId('Target_MistyStep') | SpellId('Target_WildMagic_Teleport') | SpellId('Target_SpeakWithDead') | SpellId('Target_SpeakWithDead_FreeRecast') | SpellId('Target_SpeakWithDead_Amulet_CHA') | SpellId('Target_Light')
+end
+
 function UnlimitedTwinnedProjectileSpellCheck()
-    return (HasSpellFlag(SpellFlags.Spell) | NonSpellMetamagicAbilities()) & SpellTypeIs(SpellType.Projectile) & ~MetamagicExclusionSpells() & ~SpellId('Projectile_WitchBolt')
+    return TargetRadiusGreaterThan(0) & (HasSpellFlag(SpellFlags.Spell) | NonSpellMetamagicAbilities()) & SpellTypeIs(SpellType.Projectile) & ~UnlimitedMetamagicExclusionSpells() & ~SpellId('Projectile_WitchBolt')
 end
 
 function UnlimitedTwinnedTargetSpellCheck()
-    return (HasSpellFlag(SpellFlags.Spell) | NonSpellMetamagicAbilities()) & SpellTypeIs(SpellType.Target) & ~HasFunctor(StatsFunctorType.Summon) & ~MetamagicExclusionSpells()
+    return TargetRadiusGreaterThan(1.5) & (HasSpellFlag(SpellFlags.Spell) | NonSpellMetamagicAbilities()) & SpellTypeIs(SpellType.Target) & ~UnlimitedMetamagicExclusionSpells()
 end
 
 function UnlimitedTwinnedTargetTouchSpellCheck()
-    return (HasSpellFlag(SpellFlags.Spell) | NonSpellMetamagicAbilities()) & SpellTypeIs(SpellType.Target) & ~HasFunctor(StatsFunctorType.Summon) & ~MetamagicExclusionSpells()
+    return TargetRadiusGreaterThan(0) & TargetRadiusSmallerThan(2) & (HasSpellFlag(SpellFlags.Spell) | NonSpellMetamagicAbilities()) & SpellTypeIs(SpellType.Target) & ~UnlimitedMetamagicExclusionSpells()
 end
